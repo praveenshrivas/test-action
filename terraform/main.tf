@@ -30,7 +30,7 @@ resource "aws_security_group" "web_sg" {
   }
 
   tags = {
-    Name = "terraform-web-sg"
+    Name = "terraform-web-sg1"
   }
 }
 
@@ -38,6 +38,7 @@ resource "aws_instance" "web" {
   ami                    = "ami-0f19324397f53458f"
   instance_type          = "t3.micro"
   vpc_security_group_ids = [aws_security_group.web_sg.id]
+  key-name = "Morning-Class-August"
 
   tags = {
     Name = "Terraform-Ansible-WebServer"

@@ -3,7 +3,7 @@ provider "aws" {
 }
 
 resource "aws_security_group" "web_sg" {
-  name        = "terraform-web-sg1"
+  name        = "terraform-web-sg2"
   description = "Allow SSH and HTTP traffic"
 
   ingress {

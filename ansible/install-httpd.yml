@@ -1,19 +1,16 @@
-
 ---
-- name: Install and Start Apache HTTP Server
+- name: Install and Start HTTPD
   hosts: webserver
   become: yes
 
   tasks:
-
     - name: Install HTTPD
-      apt:
-        name: apache2
+      yum:
+        name: httpd
         state: present
-        update_cache: yes
 
     - name: Start and Enable HTTPD
       service:
-        name: apache2
+        name: httpd
         state: started
         enabled: yes

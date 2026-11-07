@@ -1,9 +1,7 @@
-
 provider "aws" {
   region = "ap-south-1"
 }
 
-# Security Group
 resource "aws_security_group" "web_sg" {
   name        = "terraform-web-sg"
   description = "Allow SSH and HTTP traffic"
@@ -36,7 +34,6 @@ resource "aws_security_group" "web_sg" {
   }
 }
 
-# EC2 Instance
 resource "aws_instance" "web" {
   ami                    = "ami-0f19324397f53458f"
   instance_type          = "t3.micro"
@@ -45,4 +42,10 @@ resource "aws_instance" "web" {
   tags = {
     Name = "Terraform-Ansible-WebServer"
   }
+}
+
+# Terraform Output
+output "instance_public_ip" {
+  description = "Public IP of EC2 instance"
+  value       = aws_instance.web.public_ip
 }

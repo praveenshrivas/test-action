@@ -92,7 +92,10 @@ jobs:
       - name: Create Ansible Inventory
         run: |
           echo "[webserver]" > inventory
-          echo "${{ needs.terraform-ec2.outputs.ec2_ip }} ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/ec2-key.pem" >> inventory
+          echo "${{ needs.terraform-ec2.outputs.ec2_ip }}" >> inventory
+          echo "[webserver:vars]" >> inventory
+          echo "ansible_user=ec2-user" >> inventory
+          echo "ansible_ssh_private_key_file=$HOME/.ssh/ec2-key.pem" >> inventory
 
       - name: Disable Host Key Checking
         run: |

@@ -9,18 +9,3 @@ jobs:
     steps: 
       - name: Print the First Step
         run: echo "Hello From Github Actions - $RUNNER_NAME"
-
-      - name: Check Out code
-        uses: actions/checkout@v5
-      - name: setup Terraform 
-        uses: hashicorp/setup-terraform@v4
-      - name: terraform init
-        run: terraform init
-      - name: terraform plan 
-        run: terraform plan 
-      - name: terraform applu 
-        run: terraform apply -auto-approve
-
-      - name: erraform output 
-        run: terraform output
-

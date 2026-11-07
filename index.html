@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#080d18" />
+  <title>Welcome to GitHub Actions</title>
+  <style>
+    :root {
+      --bg: #080d18;
+      --panel: rgba(17, 26, 45, .72);
+      --muted: #9aa8bf;
+      --text: #f4f7ff;
+      --blue: #58a6ff;
+      --cyan: #54d6ff;
+      --purple: #a78bfa;
+      --green: #3ddc97;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0; min-height: 100vh; color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(ellipse at 15% 15%, rgba(35, 105, 220, .22), transparent 38%),
+        radial-gradient(ellipse at 85% 25%, rgba(137, 83, 235, .18), transparent 35%),
+        radial-gradient(ellipse at 50% 100%, rgba(0, 190, 220, .10), transparent 40%),
+        var(--bg);
+      overflow-x: hidden;
+    }
+    body::before {
+      content: ""; position: fixed; inset: 0; pointer-events: none; opacity: .17;
+      background-image: linear-gradient(rgba(255,255,255,.055) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(255,255,255,.055) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: linear-gradient(to bottom, black, transparent 85%);
+    }
+    .shell { width: min(1120px, calc(100% - 40px)); margin: auto; position: relative; }
+    nav { height: 82px; display: flex; align-items: center; justify-content: space-between; }
+    .brand { display: flex; align-items: center; gap: 12px; font-weight: 750; letter-spacing: -.3px; }
+    .brand-mark {
+      width: 38px; height: 38px; display: grid; place-items: center; border-radius: 12px;
+      background: linear-gradient(135deg, #2f81f7, #8957e5); box-shadow: 0 8px 28px #2f81f744;
+    }
+    .brand-mark svg { width: 23px; height: 23px; }
+    .nav-tag { color: #b8c5da; font-size: 13px; border: 1px solid #ffffff20; padding: 8px 13px; border-radius: 99px; background: #ffffff08; }
+    .hero { text-align: center; padding: 76px 0 50px; }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 9px; color: #c3d7f6;
+      border: 1px solid #6daeff3d; background: #388bfd12; border-radius: 99px;
+      padding: 8px 14px; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase;
+    }
+    .pulse { width: 7px; height: 7px; background: var(--green); border-radius: 50%; box-shadow: 0 0 12px var(--green); }
+    h1 { font-size: clamp(43px, 7.5vw, 78px); line-height: 1.04; letter-spacing: -4px; margin: 25px 0 18px; font-weight: 820; }
+    h1 span {
+      background: linear-gradient(100deg, #fff 5%, #9dcaff 43%, #b9a0ff 90%);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .subtitle { max-width: 650px; margin: auto; color: var(--muted); font-size: clamp(16px, 2vw, 19px); line-height: 1.75; }
+    .actions { display: flex; justify-content: center; gap: 13px; flex-wrap: wrap; margin-top: 31px; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 10px; padding: 13px 19px; border-radius: 12px;
+      text-decoration: none; font-size: 14px; font-weight: 700; transition: transform .2s, box-shadow .2s, border-color .2s;
+    }
+    .btn:hover { transform: translateY(-3px); }
+    .primary { color: #07111f; background: linear-gradient(110deg, #79c0ff, #a5a0ff); box-shadow: 0 10px 30px #5b9fff35; }
+    .secondary { color: #e4edff; border: 1px solid #ffffff24; background: #ffffff09; }
+    .terminal-wrap { max-width: 790px; margin: 15px auto 0; padding: 1px; border-radius: 19px; background: linear-gradient(120deg, #58a6ff88, #a78bfa66, #54d6ff66); box-shadow: 0 28px 90px #0008; }
+    .terminal { background: rgba(9, 15, 28, .96); border-radius: 18px; overflow: hidden; text-align: left; }
+    .terminal-top { height: 47px; display: flex; align-items: center; gap: 7px; padding: 0 17px; border-bottom: 1px solid #ffffff12; color: #8090aa; font-size: 12px; }
+    .dot { width: 9px; height: 9px; border-radius: 50%; background: #ff6b6b; }
+    .dot:nth-child(2) { background: #f6c85f; } .dot:nth-child(3) { background: #45d483; }
+    .terminal-name { margin-left: 8px; }
+    .terminal-body { padding: 22px 25px 24px; font: 13px/2.05 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: #c8d5e9; }
+    .line { display: flex; gap: 13px; }
+    .ln { color: #52627c; user-select: none; }
+    .blue { color: #79c0ff; } .purple { color: #d2a8ff; } .green { color: #7ee787; } .dim { color: #8292aa; }
+    .cursor { display: inline-block; width: 7px; height: 15px; vertical-align: -3px; background: #79c0ff; animation: blink 1s steps(2) infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+    .section-label { text-align: center; color: #8292aa; text-transform: uppercase; font-size: 11px; letter-spacing: 2px; margin: 66px 0 22px; }
+    .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding-bottom: 72px; }
+    .card {
+      border: 1px solid #ffffff16; background: linear-gradient(145deg, rgba(22,34,56,.82), rgba(13,20,35,.75));
+      border-radius: 17px; padding: 23px; min-height: 172px; transition: transform .2s, border-color .2s;
+    }
+    .card:hover { transform: translateY(-5px); border-color: #79c0ff66; }
+    .icon {
+      width: 39px; height: 39px; display: grid; place-items: center; border-radius: 12px;
+      background: #58a6ff18; color: #79c0ff; margin-bottom: 16px;
+    }
+    .icon svg { width: 20px; height: 20px; }
+    .card:nth-child(2) .icon { background: #a78bfa1c; color: #c4a7ff; }
+    .card:nth-child(3) .icon { background: #3ddc9718; color: #65e6ad; }
+    .card h3 { margin: 0 0 8px; font-size: 16px; }
+    .card p { color: var(--muted); font-size: 13px; line-height: 1.65; margin: 0; }
+    footer { border-top: 1px solid #ffffff12; padding: 22px 0 30px; color: #71819b; font-size: 12px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    footer strong { color: #a9bad2; font-weight: 600; }
+    @media (max-width: 700px) {
+      .hero { padding-top: 55px; } h1 { letter-spacing: -2.5px; }
+      .cards { grid-template-columns: 1fr; gap: 12px; padding-bottom: 48px; }
+      .card { min-height: auto; } .terminal-body { padding: 17px 14px; font-size: 11px; }
+      nav { height: 70px; } .nav-tag { font-size: 11px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <nav>
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M8 7.5 4 12l4 4.5M16 7.5l4 4.5-4 4.5M13.5 5l-3 14" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <span>GitHub Actions</span>
+      </div>
+      <div class="nav-tag">CI/CD · Automation · Cloud</div>
+    </nav>
+
+    <main>
+      <section class="hero">
+        <div class="eyebrow"><span class="pulse"></span> Your automation journey starts here</div>
+        <h1><span>Welcome to</span><br />GitHub Actions</h1>
+        <p class="subtitle">Build, test, and deploy your applications automatically. Turn every code push into a smooth, reliable workflow — right from your GitHub repository.</p>
+        <div class="actions">
+          <a class="btn primary" href="https://docs.github.com/en/actions" target="_blank" rel="noopener noreferrer">
+            Explore GitHub Actions <span aria-hidden="true">↗</span>
+          </a>
+          <a class="btn secondary" href="https://github.com/features/actions" target="_blank" rel="noopener noreferrer">
+            Discover the platform
+          </a>
+        </div>
+
+        <div class="terminal-wrap">
+          <div class="terminal">
+            <div class="terminal-top">
+              <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+              <span class="terminal-name">.github / workflows / deploy.yml</span>
+            </div>
+            <div class="terminal-body">
+              <div class="line"><span class="ln">01</span><span><span class="purple">name:</span> <span class="green">Deploy My Application</span></span></div>
+              <div class="line"><span class="ln">02</span><span><span class="purple">on:</span> <span class="blue">push</span></span></div>
+              <div class="line"><span class="ln">03</span><span><span class="purple">jobs:</span></span></div>
+              <div class="line"><span class="ln">04</span><span>&nbsp;&nbsp;<span class="blue">build-and-deploy:</span></span></div>
+              <div class="line"><span class="ln">05</span><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="purple">runs-on:</span> <span class="green">ubuntu-latest</span></span></div>
+              <div class="line"><span class="ln">06</span><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="purple">steps:</span></span></div>
+              <div class="line"><span class="ln">07</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="purple">name:</span> <span class="green">Checkout source code</span></span></div>
+              <div class="line"><span class="ln">08</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="purple">uses:</span> <span class="blue">actions/checkout@v4</span></span></div>
+              <div class="line"><span class="ln">09</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="purple">name:</span> <span class="green">Deploy application</span></span></div>
+              <div class="line"><span class="ln">10</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="purple">run:</span> <span class="green">echo "Hello, automation!"</span> <span class="cursor"></span></span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="section-label">Everything you need to automate delivery</div>
+      <section class="cards" aria-label="GitHub Actions capabilities">
+        <article class="card">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none"><path d="M4 5h16v4H4zM4 15h7v4H4zM15 15h5v4h-5zM8 9v3m8-3v3" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"/></svg></div>
+          <h3>Automate workflows</h3>
+          <p>Run jobs automatically when you push code, open a pull request, or trigger an event.</p>
+        </article>
+        <article class="card">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none"><path d="m8 8-4 4 4 4m8-8 4 4-4 4m-2-11-4 14" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <h3>Build &amp; test</h3>
+          <p>Validate every change with repeatable pipelines, automated tests, and consistent environments.</p>
+        </article>
+        <article class="card">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 17v3h14v-3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <h3>Deploy with confidence</h3>
+          <p>Ship applications to your servers and cloud platforms with a dependable delivery process.</p>
+        </article>
+      </section>
+    </main>
+    <footer>
+      <span>Made for builders, learners, and automation enthusiasts.</span>
+      <span><strong>Push code.</strong> Run workflows. <strong>Ship faster.</strong></span>
+    </footer>
+  </div>
+</body>
+</html>

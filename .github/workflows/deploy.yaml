@@ -64,6 +64,12 @@ jobs:
         working-directory: terraform
         run: |
           EC2_IP=$(terraform output -raw instance_public_ip)
+
+          if [ -z "$EC2_IP" ]; then
+            echo "ERROR: EC2 Public IP not found!"
+            exit 1
+          fi
+
           echo "ec2_ip=$EC2_IP" >> $GITHUB_OUTPUT
           echo "EC2 Public IP: $EC2_IP"
 
@@ -86,13 +92,14 @@ jobs:
       - name: Configure SSH Key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/ec2-key.pem
+          printf '%s\n' "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/ec2-key.pem
           chmod 600 ~/.ssh/ec2-key.pem
 
       - name: Create Ansible Inventory
         run: |
           echo "[webserver]" > inventory
           echo "${{ needs.terraform-ec2.outputs.ec2_ip }}" >> inventory
+
           echo "[webserver:vars]" >> inventory
           echo "ansible_user=ec2-user" >> inventory
           echo "ansible_ssh_private_key_file=$HOME/.ssh/ec2-key.pem" >> inventory
@@ -110,7 +117,7 @@ jobs:
       - name: Run Ansible Playbook
         run: |
           ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook \
-          -i inventory ansible/install-httpd.yml
+            -i inventory ansible/install-httpd.yml
 
 
   # JOB 4: HTML PAGE DEPLOYMENT
@@ -123,10 +130,21 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Check EC2 Public IP
+        run: |
+          EC2_IP="${{ needs.terraform-ec2.outputs.ec2_ip }}"
+
+          echo "EC2 Public IP: $EC2_IP"
+
+          if [ -z "$EC2_IP" ]; then
+            echo "ERROR: EC2 Public IP is empty!"
+            exit 1
+          fi
+
       - name: Configure SSH Key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/ec2-key.pem
+          printf '%s\n' "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/ec2-key.pem
           chmod 600 ~/.ssh/ec2-key.pem
 
       - name: Disable Host Key Checking
@@ -137,17 +155,21 @@ jobs:
 
       - name: Copy HTML File to EC2
         run: |
+          EC2_IP="${{ needs.terraform-ec2.outputs.ec2_ip }}"
+
           scp -i ~/.ssh/ec2-key.pem \
-          index.html \
-          ubuntu@${{ needs.terraform-ec2.outputs.ec2_ip }}:/tmp/index.html
+            index.html \
+            ec2-user@$EC2_IP:/tmp/index.html
 
       - name: Deploy HTML Page
         run: |
+          EC2_IP="${{ needs.terraform-ec2.outputs.ec2_ip }}"
+
           ssh -i ~/.ssh/ec2-key.pem \
-          ubuntu@${{ needs.terraform-ec2.outputs.ec2_ip }} \
-          "sudo cp /tmp/index.html /var/www/html/index.html"
+            ec2-user@$EC2_IP \
+            "sudo cp /tmp/index.html /var/www/html/index.html"
 
       - name: Deployment Successful
         run: |
-          echo "HTML deployment completed!"
+          echo "HTML deployment completed successfully!"
           echo "Website: http://${{ needs.terraform-ec2.outputs.ec2_ip }}"
